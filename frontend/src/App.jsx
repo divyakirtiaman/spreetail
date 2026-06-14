@@ -449,12 +449,27 @@ export default function App() {
               <h1 style={{ fontSize: '2rem' }}>Welcome, {activeUser.name}</h1>
               <p>Here is your flat summary & debt simplifications</p>
             </div>
-            <div style={{ display: 'flex', gap: '12px' }}>
+            <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
               <button className="btn btn-primary" onClick={() => setShowAddExpense(true)}>
                 ➕ Add Expense
               </button>
               <button className="btn btn-secondary" onClick={() => setShowRecordSettlement(true)}>
                 🤝 Record Settlement
+              </button>
+              <button
+                className="btn btn-danger"
+                title="Clear all expenses and payments for a clean CSV re-import"
+                onClick={async () => {
+                  if (!window.confirm('Reset ALL expenses and payments? (Users and memberships are kept)')) return;
+                  const res = await fetch(`${API_BASE}/reset`, {
+                    method: 'DELETE',
+                    headers: { Authorization: `Bearer ${token}` }
+                  });
+                  if (res.ok) { fetchData(); }
+                  else { const e = await res.json(); alert(e.error); }
+                }}
+              >
+                🗑 Reset Data
               </button>
             </div>
           </div>

@@ -215,6 +215,23 @@ app.post('/api/auth/login', async (req, res) => {
   }
 });
 
+// --- ADMIN / DEV ENDPOINTS ---
+
+// Reset all expenses + payments (keeps users & memberships intact — for demo re-import)
+app.delete('/api/reset', authenticateToken, async (req, res) => {
+  try {
+    await query.exec('BEGIN TRANSACTION');
+    await query.run('DELETE FROM expense_splits');
+    await query.run('DELETE FROM expenses');
+    await query.run('DELETE FROM payments');
+    await query.exec('COMMIT');
+    res.json({ message: 'All expenses and payments cleared. Users and memberships retained.' });
+  } catch (err) {
+    await query.exec('ROLLBACK');
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // --- MAIN EXPENSE & LEDGER ENDPOINTS ---
 
 // Get all expenses
